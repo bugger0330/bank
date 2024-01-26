@@ -10,25 +10,20 @@
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="/css/style.css" rel="stylesheet">
   <style>
   .fakeimg {
     height: 200px;
     background: #aaa;
   }
-  .m--profile{
-  	background-image: url(https://picsum.photos/id/1/350);
-  	background-size: cover;
-  	background-position: center;
-  	width: 100%;
-  	height: 200px;
-  }
+  
   </style>
 </head>
 <body>
 
-<div class="jumbotron text-center" style="margin-bottom:0">
-  <h1>My First Bootstrap 4 Page</h1>
-  <p>Resize this responsive page to see the effect!</p> 
+<div class="jumbotron text-center banner--img" style="margin-bottom:0">
+  <h1>my bank</h1>
+  <p>최첨단 관리 시스템</p> 
 </div>
 
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
