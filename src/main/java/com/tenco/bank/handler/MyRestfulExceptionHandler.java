@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.tenco.bank.handler.exception.CustomRestfulException;
+import com.tenco.bank.handler.exception.UnAuthorizedException;
 
 @Order(1)
 @RestControllerAdvice
@@ -27,5 +28,17 @@ public class MyRestfulExceptionHandler {
 		buffer.append("</script>");
 		return buffer.toString();
 	}
+	
+	@ExceptionHandler(UnAuthorizedException.class)
+	public String UnAuthorizedException(com.tenco.bank.handler.exception.UnAuthorizedException e) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<script>");
+		buffer.append("alert('" + e.getMessage() + "');");
+		buffer.append("window.location.href='/user/sign-in';");
+		buffer.append("</script>");
+		return buffer.toString();
+	}
+	
+	
 	
 }
