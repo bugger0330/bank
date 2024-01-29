@@ -65,8 +65,14 @@ public class UserController {
 		}
 		
 		User user = userService.readUser(dto);
-		httpSession.setAttribute("princifal", user);
+		httpSession.setAttribute("principal", user);
 		return "redirect:/layout/main";
+	}
+	
+	@GetMapping("/logout")
+	public String logout() {
+		httpSession.invalidate();
+		return "redirect:/user/sign-in";
 	}
 	
 }
