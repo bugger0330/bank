@@ -12,6 +12,7 @@ import com.tenco.bank.dto.SignUpFormDto;
 import com.tenco.bank.handler.exception.CustomRestfulException;
 import com.tenco.bank.repository.entity.User;
 import com.tenco.bank.service.UserService;
+import com.tenco.bank.util.Define;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -65,8 +66,8 @@ public class UserController {
 		}
 		
 		User user = userService.readUser(dto);
-		httpSession.setAttribute("principal", user);
-		return "redirect:/layout/main";
+		httpSession.setAttribute(Define.PRINCIPAL, user);
+		return "redirect:/account/list";
 	}
 	
 	@GetMapping("/logout")

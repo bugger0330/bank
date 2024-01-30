@@ -10,11 +10,11 @@
 		<form action="/user/sign-in" method="post">
 		  <div class="form-group">
 		    <label for="username">아이디</label>
-		    <input type="text" class="form-control" placeholder="아이디를 입력하세요!" id="username" name="username">
+		    <input type="text" class="form-control" placeholder="아이디를 입력하세요!" id="username" name="username" value="aaa">
 		  </div>
 		  <div class="form-group">
 		    <label for="password">비밀번호</label>
-		    <input type="password" class="form-control" placeholder="비밀번호를 입력하세요!" id="password" name="password">
+		    <input type="password" class="form-control" placeholder="비밀번호를 입력하세요!" id="password" name="password" value="bbb">
 		  </div>
 		  <button type="submit" class="btn btn-primary">로그인</button>
 		</form>
