@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tenco.bank.dto.AccountSaveDto;
 import com.tenco.bank.dto.DepositFormDto;
+import com.tenco.bank.dto.TransferSaveDto;
 import com.tenco.bank.dto.WithdrawFromDto;
 import com.tenco.bank.handler.exception.CustomRestfulException;
 import com.tenco.bank.repository.entity.Account;
@@ -108,35 +109,62 @@ public class AccountService {
 			throw new CustomRestfulException("입금 계좌 비밀번호를 확인하세요!!", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		// 입금 처리 update
-		Account account2 = Account.builder()
-				.number(dto.getDAccountNumber())
-				.password(dto.getDAccountPassword())
-				.balance(dto.getAmount())
-				.userId(principal.getId())
-				.id(principal.getId())
-				.build();
-		int result1 = accountRepository.insert(account2);
-		if(result1 != 1) {
-			throw new CustomRestfulException("실패", HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		account.deposit(dto.getAmount());
+		accountRepository.insert(account);
 		// 거래내역 등록 insert
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		History history = new History();
+		history.setAmount(dto.getAmount());
+		history.setWBalance(null);
+		history.setDBalance(account.getBalance());
+		history.setWAccountId(null);
+		history.setDAccountId(account.getId());
+		int rowResultCount = historyRepository.insert(history);
+		if(rowResultCount != 1) {
+			throw new CustomRestfulException("정상 처리 되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@Transactional
+	public void updateAccountTransfer(TransferSaveDto dto, Integer principal) {
+		//출금 계좌 존재여부
+		Account wAccount = accountRepository.findByNumber(dto.getWAccountNumber());
+		if(wAccount == null) {
+			throw new CustomRestfulException("출금계좌가 존재하지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		//입금 계좌 존재여부
+		Account dAccount = accountRepository.findByNumber(dto.getDAccountNumber());
+		if(dAccount == null) {
+			throw new CustomRestfulException("입금계좌가 존재하지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		//출금 계좌 본인 소유 확인
+		if(wAccount.getId() != dAccount.getId()) {
+			throw new CustomRestfulException("출금계좌 소유자가 아닙니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		//출금 계좌 비밀번호
+		if(!wAccount.getPassword().equals(dto.getPassword())) {
+			throw new CustomRestfulException("출금계좌 비밀번호가 틀립니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		//출금 계좌 잔액 확인
+		if(wAccount.getBalance() <= dto.getAmount()) {
+			throw new CustomRestfulException("잔액이 부족합니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		//출금 계좌 잔액 수정
+		wAccount.withdraw(dto.getAmount());
+		accountRepository.updateById(wAccount);
+		//입금 계좌 잔액 수정
+		dAccount.deposit(dto.getAmount());
+		accountRepository.updateById(wAccount);
+		//거래내역 등록
+		History history = new History();
+		history.setAmount(dto.getAmount());
+		history.setWBalance(wAccount.getBalance());
+		history.setDBalance(dAccount.getBalance());
+		history.setWAccountId(wAccount.getId());
+		history.setDAccountId(dAccount.getId());
+		int rowResultCount = historyRepository.insert(history);
+		if(rowResultCount != 1) {
+			throw new CustomRestfulException("정상 처리 되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	
