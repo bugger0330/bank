@@ -12,6 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import com.tenco.bank.dto.AccountSaveDto;
+import com.tenco.bank.dto.WithdrawFromDto;
 import com.tenco.bank.handler.exception.CustomRestfulException;
 import com.tenco.bank.handler.exception.UnAuthorizedException;
 import com.tenco.bank.repository.entity.Account;
@@ -92,6 +93,42 @@ public class AccountController {
 		
 		return "account/list";
 	}
+	
+	//출금 페이지
+	@GetMapping("/withdraw")
+	public String withdrawPage() {
+		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
+		if(principal == null) {
+			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
+		}
+		return "account/withdraw";
+	}
+	
+	//출금 기능
+	@PostMapping("/withdraw")
+	public String withdrawProc(WithdrawFromDto dto) {
+		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
+		if(principal == null) {
+			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
+		}
+		
+		if(dto.getAmount() == null || dto.getAmount().longValue() <= 0) {
+			throw new CustomRestfulException("금액를 입력하세요!", HttpStatus.BAD_REQUEST);
+		}else if(dto.getWAccountNumber() == null || dto.getWAccountNumber().isEmpty()) {
+			throw new CustomRestfulException("계좌번호를 입력해주세요!", HttpStatus.BAD_REQUEST);
+		}else if(dto.getWAccountPassword() == null || dto.getWAccountPassword().isEmpty()) {
+			throw new CustomRestfulException("비밀번호를 확인하세요!", HttpStatus.BAD_REQUEST);
+		}
+		
+		accountService.updateAccountWithdraw(dto, principal.getId());
+		
+		return "redirect:/account/list";
+	}
+	
+	
+	
+	
+	
 	
 	
 	

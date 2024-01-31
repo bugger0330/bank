@@ -8,9 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tenco.bank.dto.AccountSaveDto;
+import com.tenco.bank.dto.WithdrawFromDto;
 import com.tenco.bank.handler.exception.CustomRestfulException;
 import com.tenco.bank.repository.entity.Account;
+import com.tenco.bank.repository.entity.History;
 import com.tenco.bank.repository.interfaces.AccountRepository;
+import com.tenco.bank.repository.interfaces.HistoryRepository;
 import com.tenco.bank.util.Define;
 
 @Service
@@ -18,6 +21,9 @@ public class AccountService {
 	
 	@Autowired
 	private AccountRepository accountRepository;
+	
+	@Autowired
+	private HistoryRepository historyRepository;
 	
 	@Transactional
 	public void createAccount(AccountSaveDto dto) {
@@ -47,6 +53,42 @@ public class AccountService {
 	//계좌 목록 보기 기능(1인 다 계좌)
 	public List<Account> accountListByUserId(Integer principal){
 		return accountRepository.findAllByUserId(principal);
+	}
+
+	//출금 기능
+	@Transactional
+	public void updateAccountWithdraw(WithdrawFromDto dto, Integer principalId) {
+		// 계좌존재 여부 확인
+		Account account = accountRepository.findByNumber(dto.getWAccountNumber());
+		if(account == null) {
+			throw new CustomRestfulException(Define.NOT_EXIST_ACCOUNT, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		// 본인계좌 여부 확인
+		if(!account.getUserId().equals(principalId)) {
+			throw new CustomRestfulException("본인 소유 계좌가 아닙니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		// 계좌 비밀번호가 정상인지
+		if(!account.getPassword().equals(dto.getWAccountPassword())) {
+			throw new CustomRestfulException("계좌 비밀번호가 다릅니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		// 잔액 여부 확인
+		if(account.getBalance() < dto.getAmount()) {
+			throw new CustomRestfulException("계좌 잔액이 부족합니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		// 출금 처리 update
+		account.withdraw(dto.getAmount());
+		accountRepository.updateById(account);
+		// 거래내역 등록 insert
+		History history = new History();
+		history.setAmount(dto.getAmount());
+		history.setWBalance(account.getBalance());
+		history.setDBalance(null);
+		history.setWAccountId(account.getId());
+		history.setDAccountId(null);
+		int rowResultCount = historyRepository.insert(history);
+		if(rowResultCount != 1) {
+			throw new CustomRestfulException("정상 처리 되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	
