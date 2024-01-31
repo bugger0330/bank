@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tenco.bank.dto.AccountSaveDto;
+import com.tenco.bank.dto.DepositFormDto;
 import com.tenco.bank.dto.WithdrawFromDto;
 import com.tenco.bank.handler.exception.CustomRestfulException;
 import com.tenco.bank.repository.entity.Account;
 import com.tenco.bank.repository.entity.History;
+import com.tenco.bank.repository.entity.User;
 import com.tenco.bank.repository.interfaces.AccountRepository;
 import com.tenco.bank.repository.interfaces.HistoryRepository;
 import com.tenco.bank.util.Define;
@@ -90,6 +92,63 @@ public class AccountService {
 			throw new CustomRestfulException("정상 처리 되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	@Transactional
+	public void updateAccountDeposit(DepositFormDto dto, User principal) {
+		// TODO Auto-generated method stub
+		Account account = accountRepository.findByNumber(dto.getDAccountNumber());
+		if(account == null) {
+			throw new CustomRestfulException("입금 계좌번호를 확인해주세요!", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		// 본인계좌 여부 확인
+		if(!account.getNumber().equals(dto.getDAccountNumber())) {
+			throw new CustomRestfulException("본인 소유 계좌가 아닙니다!", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		// 계좌 비밀번호가 정상인지
+		if(!account.getPassword().equals(dto.getDAccountPassword())) {
+			throw new CustomRestfulException("입금 계좌 비밀번호를 확인하세요!!", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		// 입금 처리 update
+		Account account2 = Account.builder()
+				.number(dto.getDAccountNumber())
+				.password(dto.getDAccountPassword())
+				.balance(dto.getAmount())
+				.userId(principal.getId())
+				.id(principal.getId())
+				.build();
+		int result1 = accountRepository.insert(account2);
+		if(result1 != 1) {
+			throw new CustomRestfulException("실패", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		// 거래내역 등록 insert
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
