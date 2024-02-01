@@ -13,6 +13,7 @@ import com.tenco.bank.dto.TransferSaveDto;
 import com.tenco.bank.dto.WithdrawFromDto;
 import com.tenco.bank.handler.exception.CustomRestfulException;
 import com.tenco.bank.repository.entity.Account;
+import com.tenco.bank.repository.entity.CustomHistoryEntity;
 import com.tenco.bank.repository.entity.History;
 import com.tenco.bank.repository.entity.User;
 import com.tenco.bank.repository.interfaces.AccountRepository;
@@ -137,7 +138,7 @@ public class AccountService {
 			throw new CustomRestfulException("입금계좌가 존재하지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		//출금 계좌 본인 소유 확인
-		if(wAccount.getId() != dAccount.getId()) {
+		if(wAccount.getUserId() != principal) {
 			throw new CustomRestfulException("출금계좌 소유자가 아닙니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		//출금 계좌 비밀번호
@@ -150,10 +151,13 @@ public class AccountService {
 		}
 		//출금 계좌 잔액 수정
 		wAccount.withdraw(dto.getAmount());
-		accountRepository.updateById(wAccount);
+		int result1 = accountRepository.updateById(wAccount);
 		//입금 계좌 잔액 수정
 		dAccount.deposit(dto.getAmount());
-		accountRepository.updateById(wAccount);
+		int result2 = accountRepository.updateById(wAccount);
+		if(result1 != 1 && result2 != 1) {
+			throw new CustomRestfulException("정상 처리가 안됬습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		//거래내역 등록
 		History history = new History();
 		history.setAmount(dto.getAmount());
@@ -165,6 +169,16 @@ public class AccountService {
 		if(rowResultCount != 1) {
 			throw new CustomRestfulException("정상 처리 되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	//계좌 거래 내역
+	public List<CustomHistoryEntity> readHistoryListByAccount(String type, Integer id) {
+		return historyRepository.findByHistoryType(type, id);
+	}
+
+	public Account readByAccountId(Integer id) {
+		// TODO Auto-generated method stub
+		return accountRepository.findByAccountId(id);
 	}
 	
 	

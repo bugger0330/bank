@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
@@ -18,6 +20,7 @@ import com.tenco.bank.dto.WithdrawFromDto;
 import com.tenco.bank.handler.exception.CustomRestfulException;
 import com.tenco.bank.handler.exception.UnAuthorizedException;
 import com.tenco.bank.repository.entity.Account;
+import com.tenco.bank.repository.entity.CustomHistoryEntity;
 import com.tenco.bank.repository.entity.User;
 import com.tenco.bank.service.AccountService;
 import com.tenco.bank.util.Define;
@@ -174,7 +177,6 @@ public class AccountController {
 		if(principal == null) {
 			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
 		}
-		
 		if(dto.getAmount() == null || dto.getAmount() <= 0) {
 			throw new CustomRestfulException("이체 금액을 확인하세요!", HttpStatus.BAD_REQUEST);
 		}else if(dto.getWAccountNumber() == null || dto.getWAccountNumber().isEmpty()) {
@@ -189,7 +191,31 @@ public class AccountController {
 		return "redirect:/account/list";
 	}
 	
-	
+	// 계좌 상세 보기 페이지 -- 전체(입출금), 입금, 출금
+		// http://localhost:80/account/detail/1
+		@GetMapping("/detail/{id}")
+		public String detail(@PathVariable Integer id, 
+				@RequestParam(name = "type", 
+							  defaultValue = "all", required = false) String type, 
+				org.springframework.ui.Model model) {
+				
+			// 1. 인증 검사
+			User principal = (User) httpSession.getAttribute(Define.PRINCIPAL); // 다운 캐스팅
+			if (principal == null) {
+				throw new UnAuthorizedException(Define.ENTER_YOUR_LOGIN, HttpStatus.UNAUTHORIZED);
+			}
+			
+			Account account = accountService.readByAccountId(id);
+			
+			// 서스비 호출
+			List<CustomHistoryEntity> historyList = accountService.readHistoryListByAccount(type, id);
+			System.out.println("list : " + historyList.toString());
+			
+			model.addAttribute("account", account);
+			model.addAttribute("historyList", historyList);
+			
+			return "account/detail";
+		}
 	
 	
 	

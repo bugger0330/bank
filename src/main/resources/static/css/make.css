@@ -1,0 +1,38 @@
+.title-main{
+	display: flex;
+	flex-direction: column;
+	border: 1px solid gray;
+}
+
+.title-box1{
+	display: flex;
+	justify-content:space-around;
+	padding: 10px;
+	border-bottom: 1px solid gray;
+}
+.title-box2{
+	display: flex;
+	justify-content:space-around;
+	padding: 10px;
+}
+table{
+	margin: 20px auto;
+	width: 100%;
+	text-align: center;
+}
+
+tr{
+	border: 1px solid gray;
+}
+
+th{
+	font-weight: 700;
+}
+
+th, td{
+	padding: 10px;
+}
+.title-box div a{
+	color: blue;
+	cursor: pointer;
+}
