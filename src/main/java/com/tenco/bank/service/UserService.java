@@ -1,6 +1,8 @@
 package com.tenco.bank.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,9 @@ public class UserService {
 	//@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	//@Autowired 안쓰고 생성자를 이용해서 주입함
 	public UserService(UserRepository userRepository) {
 		// TODO Auto-generated constructor stub
@@ -27,9 +32,13 @@ public class UserService {
 	public void createUser(SignUpFormDto dto) {
 		User user = User.builder()
 				.username(dto.getUsername())
-				.password(dto.getPassword())
+				.password(passwordEncoder.encode(dto.getUsername()))
 				.fullname(dto.getFullname())
+				.originFileName(dto.getOriginFileName())
+				.uploadFileName(dto.getUploadFileName())
 				.build();
+		System.out.println("회원가입--- " + dto.toString());
+		System.out.println("회원가입--- " + user.toString());
 		int result = userRepository.insert(user);
 		if(result != 1) {
 			throw new CustomRestfulException("회원 가입 실패", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -37,15 +46,24 @@ public class UserService {
 	}
 	
 	public User readUser(SignInFormDto dto) {
-		User userEntity = User.builder()
-				.username(dto.getUsername())
-				.password(dto.getPassword())
-				.build();
-		User user = userRepository.findByUsernameAndPassword(userEntity);
-		if(user == null) {
-			throw new UnAuthorizedException("인증된 사용자가 아닙니다.", HttpStatus.BAD_REQUEST);
+		User userEntity = userRepository.findByUsername(dto.getUsername());
+		if(userEntity == null) {
+			throw new CustomRestfulException("아이디가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
 		}
-		return user;
+		
+		boolean isPwdMatched = passwordEncoder.matches(dto.getPassword(), userEntity.getPassword());
+		if(isPwdMatched == false) {
+			throw new CustomRestfulException("비밀번호가 틀립니다.", HttpStatus.BAD_REQUEST);
+		}
+		
+		return userEntity;
+	}
+	
+	// 사용자 이름만 가지고 정보 조회
+	public User readUserByUsername(SignUpFormDto dto) {
+		
+		// null , User()
+		return userRepository.findByUsername(dto.getUsername());
 	}
 	
 	

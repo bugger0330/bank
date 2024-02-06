@@ -14,6 +14,6 @@ public interface UserRepository {
 	public User findById(Integer id);
 	public List<User> findAll();
 
-	public User findByUsername(User user);
+	public User findByUsername(String username);
 	public User findByUsernameAndPassword(User user);
 }

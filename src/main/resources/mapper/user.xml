@@ -5,12 +5,14 @@
 <mapper namespace="com.tenco.bank.repository.interfaces.UserRepository">
 
 	<insert id="insert" parameterType="com.tenco.bank.repository.entity.User">
-		insert into user_tb(username, password, fullname, created_at)
+		insert into user_tb(username, password, fullname, created_at, origin_file_name, upload_file_name)
 		values(
 			#{username},
 			#{password},
 			#{fullname},
-			now()
+			now(),
+			#{originFileName},
+			#{uploadFileName}
 		);
 	</insert>
 	
@@ -35,7 +37,7 @@
 		select * from user_tb;
 	</select>
 	
-	<select id="findByUsername" parameterType="com.tenco.bank.repository.entity.User" resultType="com.tenco.bank.repository.entity.User">
+	<select id="findByUsername" parameterType="String" resultType="com.tenco.bank.repository.entity.User">
 		select * from user_tb where username = #{username};
 	</select>
 

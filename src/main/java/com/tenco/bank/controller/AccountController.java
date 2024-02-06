@@ -10,23 +10,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import com.tenco.bank.dto.AccountSaveDto;
 import com.tenco.bank.dto.DepositFormDto;
 import com.tenco.bank.dto.TransferSaveDto;
 import com.tenco.bank.dto.WithdrawFromDto;
 import com.tenco.bank.handler.exception.CustomRestfulException;
-import com.tenco.bank.handler.exception.UnAuthorizedException;
 import com.tenco.bank.repository.entity.Account;
 import com.tenco.bank.repository.entity.CustomHistoryEntity;
 import com.tenco.bank.repository.entity.User;
 import com.tenco.bank.service.AccountService;
 import com.tenco.bank.util.Define;
 
-import ch.qos.logback.core.model.Model;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -42,20 +37,13 @@ public class AccountController {
 	
 	@GetMapping("/save")
 	public String accountPage() {
-		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
-		if(principal == null) {
-			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
-		}
+		
 		return "account/saveForm";
 	}
 	
 	@PostMapping("/save") // 계좌생성 처리
 	public String accountSave(AccountSaveDto dto) {
 		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
-		if(principal == null) {
-			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
-		}
-		
 		if(dto.getNumber() == null || dto.getNumber().isEmpty()) {
 			throw new CustomRestfulException("계좌번호를 입력하세요!", HttpStatus.BAD_REQUEST);
 		}else if(dto.getPassword() == null || dto.getPassword().isEmpty()) {
@@ -85,10 +73,6 @@ public class AccountController {
 	@GetMapping({"/", "/list"})
 	public String listPage(org.springframework.ui.Model model) {
 		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
-		if(principal == null) {
-			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
-		}
-		
 		List<Account> list = accountService.accountListByUserId(principal.getId());
 		if(list.isEmpty()) {
 			model.addAttribute("accountList", null);
@@ -102,10 +86,7 @@ public class AccountController {
 	//출금 페이지
 	@GetMapping("/withdraw")
 	public String withdrawPage() {
-		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
-		if(principal == null) {
-			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
-		}
+		
 		return "account/withdraw";
 	}
 	
@@ -113,10 +94,6 @@ public class AccountController {
 	@PostMapping("/withdraw")
 	public String withdrawProc(WithdrawFromDto dto) {
 		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
-		if(principal == null) {
-			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
-		}
-		
 		if(dto.getAmount() == null || dto.getAmount().longValue() <= 0) {
 			throw new CustomRestfulException("금액를 입력하세요!", HttpStatus.BAD_REQUEST);
 		}else if(dto.getWAccountNumber() == null || dto.getWAccountNumber().isEmpty()) {
@@ -133,20 +110,13 @@ public class AccountController {
 	//입금 페이지
 	@GetMapping("/deposit")
 	public String depositPage() {
-		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
-		if(principal == null) {
-			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
-		}
+		
 		return "account/deposit";
 	}
 	
 	//입금 기능
 	public String depositProc(DepositFormDto dto) {
 		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
-		if(principal == null) {
-			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
-		}
-		
 		if(dto.getAmount() == null || dto.getAmount() <= 0) {
 			throw new CustomRestfulException("입금금액을 확인하세요!", HttpStatus.BAD_REQUEST);
 		}else if(dto.getDAccountNumber() == null || dto.getDAccountNumber().isEmpty()) {
@@ -163,10 +133,7 @@ public class AccountController {
 	//이체 페이지
 	@GetMapping("/transfer")
 	public String transferPage() {
-		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
-		if(principal == null) {
-			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
-		}
+		
 		return "account/transfer";
 	}
 	
@@ -174,9 +141,6 @@ public class AccountController {
 	@PostMapping("/transfer")
 	public String transferProc(TransferSaveDto dto) {
 		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
-		if(principal == null) {
-			throw new UnAuthorizedException("로그인을 해주세요!", HttpStatus.UNAUTHORIZED);
-		}
 		if(dto.getAmount() == null || dto.getAmount() <= 0) {
 			throw new CustomRestfulException("이체 금액을 확인하세요!", HttpStatus.BAD_REQUEST);
 		}else if(dto.getWAccountNumber() == null || dto.getWAccountNumber().isEmpty()) {
@@ -195,15 +159,7 @@ public class AccountController {
 		// http://localhost:80/account/detail/1
 		@GetMapping("/detail/{id}")
 		public String detail(@PathVariable Integer id, 
-				@RequestParam(name = "type", 
-							  defaultValue = "all", required = false) String type, 
-				org.springframework.ui.Model model) {
-				
-			// 1. 인증 검사
-			User principal = (User) httpSession.getAttribute(Define.PRINCIPAL); // 다운 캐스팅
-			if (principal == null) {
-				throw new UnAuthorizedException(Define.ENTER_YOUR_LOGIN, HttpStatus.UNAUTHORIZED);
-			}
+				@RequestParam(name = "type", defaultValue = "all", required = false) String type, org.springframework.ui.Model model) {
 			
 			Account account = accountService.readByAccountId(id);
 			

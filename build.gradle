@@ -26,7 +26,9 @@ dependencies {
 	//implementation 'javax.servlet:jstl'
 	implementation group: 'org.glassfish.web', name: 'jakarta.servlet.jsp.jstl', version: '2.0.0'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0'
-	
+	implementation 'org.springframework.security:spring-security-crypto'
+	// 이메일 전송
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'

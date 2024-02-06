@@ -13,6 +13,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
   <link href="/css/style.css" rel="stylesheet">
   <link href="/css/make.css" rel="stylesheet">
+  <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
   <style>
   .fakeimg {
     height: 200px;
@@ -62,7 +63,18 @@
     <div class="col-sm-4">
       <h2>About Me</h2>
       <h5>Photo of me:</h5>
-      <div class="m--profile"></div>
+      <!-- 로그인 여부에 따라 이미지 변경 -->
+      <c:choose>
+      	<c:when test="${principal != null }">
+      		<img class="m--profile" src="${principal.setupUserImage() }"/>
+      	</c:when>
+      	<c:otherwise>
+      		<div class="m--profile"></div>
+      	</c:otherwise>
+      </c:choose>
+      
+	  
+
       <p>중단기 심화 - 은행관리 시스템 예제</p>
       <h3>Some Links</h3>
       <p>Lorem ipsum dolor sit ame.</p>

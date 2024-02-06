@@ -7,7 +7,7 @@
 		<h2>회원 가입</h2>
 		<h5>어서 오세요!</h5>
 		<br><br>
-		<form action="/user/sign-up" method="post">
+		<form action="/user/sign-up" method="post" enctype="multipart/form-data">
 		  <div class="form-group">
 		    <label for="username">아이디</label>
 		    <input type="text" class="form-control" placeholder="아이디를 입력하세요!" id="username" name="username">
@@ -20,6 +20,11 @@
 		    <label for="fullname">이름</label>
 		    <input type="text" class="form-control" placeholder="이름을 입력하세요!" id="fullname" name="fullname">
 		  </div>
+		  <div class="custom-file">
+		    <input type="file" class="custom-file-input" id="customFile" name="file">
+		    <label class="custom-file-label" for="customFile">첨부</label>
+		  </div>
+		  <br><br>
 		  <button type="submit" class="btn btn-primary">회원가입</button>
 		</form>
 	</div>
@@ -32,3 +37,10 @@
 	
 	<!-- 숙제 -->
 	<!-- 이벤트 전파 속성 - 버블링이 뭔지, 캡처링이 뭔지 -->
+<script>
+// Add the following code if you want the name of the file appear on select
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+</script>

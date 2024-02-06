@@ -21,4 +21,10 @@ public class Define {
 	  public static final String FAIL_TO_CREATE_USER = "회원가입 실패.";
 	
 	  public static final String NOT_AN_AUTHENTICATED_USER = "인증된 사용자가 아닙니다.";
+	  
+	  // 파일 크기 20메가 
+	  public static final int MAX_FILE_SIZE = 1024 * 1024 * 20;
+	  // C:\\wok_spring\\upload
+	  public static final String UPLOAD_FILE_DERECTORY = "C:\\wok_spring\\upload";
+	  
 }
