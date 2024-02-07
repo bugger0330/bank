@@ -20,7 +20,7 @@ public interface AccountRepository {
 	public Account findByNumber(String number);
 	public Account findByAccountId(Integer id);
 	
-	
+	public int updatePlus(Account account);
 	
 	
 	

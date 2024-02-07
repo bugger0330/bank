@@ -55,7 +55,7 @@ public class AccountController {
 		dto.setUserId(principal.getId());
 		accountService.createAccount(dto);
 		
-		return "/list";
+		return "redirect:/account/list";
 	}
 	
 //	@GetMapping("/select")
@@ -115,16 +115,15 @@ public class AccountController {
 	}
 	
 	//입금 기능
+	@PostMapping("/deposit")
 	public String depositProc(DepositFormDto dto) {
 		User principal = (User)httpSession.getAttribute(Define.PRINCIPAL);
 		if(dto.getAmount() == null || dto.getAmount() <= 0) {
 			throw new CustomRestfulException("입금금액을 확인하세요!", HttpStatus.BAD_REQUEST);
 		}else if(dto.getDAccountNumber() == null || dto.getDAccountNumber().isEmpty()) {
 			throw new CustomRestfulException("입금 계좌번호를 확인하세요!", HttpStatus.BAD_REQUEST);
-		}else if(dto.getDAccountPassword() == null || dto.getDAccountPassword().isEmpty()) {
-			throw new CustomRestfulException("입금 계좌 비밀번호를 확인하세요!", HttpStatus.BAD_REQUEST);
 		}
-		
+		System.out.println("실행");
 		accountService.updateAccountDeposit(dto, principal);
 		
 		return "redirect:/account/list";

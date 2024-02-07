@@ -105,13 +105,10 @@ public class AccountService {
 		if(!account.getNumber().equals(dto.getDAccountNumber())) {
 			throw new CustomRestfulException("본인 소유 계좌가 아닙니다!", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		// 계좌 비밀번호가 정상인지
-		if(!account.getPassword().equals(dto.getDAccountPassword())) {
-			throw new CustomRestfulException("입금 계좌 비밀번호를 확인하세요!!", HttpStatus.INTERNAL_SERVER_ERROR);
-		}
 		// 입금 처리 update
 		account.deposit(dto.getAmount());
-		accountRepository.insert(account);
+		account.setNumber(dto.getDAccountNumber());
+		accountRepository.updatePlus(account);
 		// 거래내역 등록 insert
 		History history = new History();
 		history.setAmount(dto.getAmount());
@@ -127,6 +124,7 @@ public class AccountService {
 
 	@Transactional
 	public void updateAccountTransfer(TransferSaveDto dto, Integer principal) {
+		
 		//출금 계좌 존재여부
 		Account wAccount = accountRepository.findByNumber(dto.getWAccountNumber());
 		if(wAccount == null) {
@@ -154,7 +152,7 @@ public class AccountService {
 		int result1 = accountRepository.updateById(wAccount);
 		//입금 계좌 잔액 수정
 		dAccount.deposit(dto.getAmount());
-		int result2 = accountRepository.updateById(wAccount);
+		int result2 = accountRepository.updateById(dAccount);
 		if(result1 != 1 && result2 != 1) {
 			throw new CustomRestfulException("정상 처리가 안됬습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 		}

@@ -30,6 +30,11 @@
 		select * from account_tb where id = #{id}
 	</select>
 	
+	<update id="updatePlus">
+		update account_tb set
+			balance = #{balance}
+		where number = #{number}
+	</update>
 	
 	
 	
